@@ -1,0 +1,7 @@
+.venv
+.env
+.idea
+README.md
+*.log
+__pycache__/
+*.pyc
