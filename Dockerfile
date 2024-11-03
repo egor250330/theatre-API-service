@@ -19,3 +19,7 @@ RUN mkdir -p /files/media && \
     chmod -R 755 /files/media
 
 USER my_user
+
+# The command apt-get clean && rm -rf /var/lib/apt/lists/*
+# is used to remove unnecessary files after package installation,
+# which helps reduce the size of the Docker image and improve its efficiency
