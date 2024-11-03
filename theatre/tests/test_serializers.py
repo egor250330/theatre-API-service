@@ -46,18 +46,37 @@ class GenreSerializerTest(APITestCase):
 
 class PlaySerializerTest(APITestCase):
     def setUp(self):
+        self.actor = Actor.objects.create(
+            first_name="John",
+            last_name="Doe"
+        )
+        self.genre = Genre.objects.create(
+            name="Drama"
+        )
+
         self.play = Play.objects.create(
             title="Hamlet",
             description="The story about Hamlet"
         )
 
+        self.play.actors.add(self.actor)
+        self.play.genres.add(self.genre)
+
     def test_play_serializer_fields(self):
         serializer = PlaySerializer(instance=self.play)
         data = serializer.data
 
-        self.assertEqual(set(data.keys()), {"id", "title", "description"})
+        self.assertEqual(set(data.keys()), {"id", "title", "description", "actors", "genres"})
+
         self.assertEqual(data["title"], self.play.title)
         self.assertEqual(data["description"], self.play.description)
+
+        self.assertEqual(len(data["actors"]), 1)
+        self.assertEqual(data["actors"][0]["first_name"], self.actor.first_name)
+        self.assertEqual(data["actors"][0]["last_name"], self.actor.last_name)
+
+        self.assertEqual(len(data["genres"]), 1)
+        self.assertEqual(data["genres"][0]["name"], self.genre.name)
 
 
 class TheatreHallSerializerTest(APITestCase):

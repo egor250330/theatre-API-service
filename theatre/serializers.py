@@ -34,9 +34,12 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class PlaySerializer(serializers.ModelSerializer):
+    actors = ActorSerializer(many=True, required=False)
+    genres = GenreSerializer(many=True, required=False)
+
     class Meta:
         model = Play
-        fields = ("id", "title", "description")
+        fields = ("id", "title", "description", "actors", "genres")
 
 
 class TheatreHallSerializer(serializers.ModelSerializer):

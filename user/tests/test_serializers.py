@@ -5,6 +5,7 @@ from user.serializers import UserSerializer, AuthTokenSerializer
 
 User = get_user_model()
 
+
 class UserSerializerTest(TestCase):
 
     def setUp(self):
@@ -31,7 +32,6 @@ class UserSerializerTest(TestCase):
         new_data = {"username": "updateduser", "password": "newpassword"}
         serializer = UserSerializer(instance=user, data=new_data, partial=True)
 
-        # Перевіряємо, що сериалізатор дійсний
         self.assertTrue(serializer.is_valid())
         updated_user = serializer.save()
         self.assertEqual(updated_user.username, "updateduser")
@@ -54,10 +54,18 @@ class AuthTokenSerializerTest(TestCase):
             "email": "wrong@example.com",
             "password": "wrongpassword"
         }
-        self.serializer = AuthTokenSerializer(data=self.valid_credentials)
+
+        # Створення запиту для передачі в контекст
+        from rest_framework.request import Request
+        from rest_framework.test import APIRequestFactory
+
+        factory = APIRequestFactory()
+        request = factory.post('/auth-token/', self.valid_credentials)
+        self.serializer = AuthTokenSerializer(data=self.valid_credentials, context={'request': request})
 
     def test_auth_token_serializer_valid(self):
-        self.assertTrue(self.serializer.is_valid())
+        self.serializer.is_valid(raise_exception=True)  # Це підніме виключення, якщо дані недійсні
+        self.assertIn("user", self.serializer.validated_data)
         self.assertEqual(self.serializer.validated_data["user"], self.user)
 
     def test_auth_token_serializer_invalid_credentials(self):
@@ -66,6 +74,7 @@ class AuthTokenSerializerTest(TestCase):
             serializer.is_valid(raise_exception=True)
 
     def test_auth_token_serializer_authenticate_user(self):
-        self.serializer.is_valid()
+        self.serializer.is_valid(raise_exception=True)  # Це підніме виключення, якщо дані недійсні
         self.assertIn("user", self.serializer.validated_data)
         self.assertEqual(self.serializer.validated_data["user"], self.user)
+
